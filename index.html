@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS · ETH Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#07090f;--bg2:#0f1420;--card:#141a28;--card2:#1a2235;
+      --text:#f4f7ff;--muted:#a8b3cf;--line:#2a3552;
+      --accent:#9bff4f;--good:#67f7ba;--bad:#ff7366;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#090d16 60%);color:var(--text);font-family:Inter,system-ui,sans-serif}
+    .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 48px}
+    h1,h2{margin:0 0 10px;font-weight:800;letter-spacing:.02em}
+    h1{font-size:30px} h2{font-size:20px}
+    p,li{color:var(--muted);line-height:1.6}
+    .grid{display:grid;gap:16px}
+    .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+    .card strong{color:var(--text)}
+    .mono{font-family:"JetBrains Mono",monospace;background:var(--card2);border:1px solid var(--line);padding:10px 12px;border-radius:10px;color:#d8e0f5;overflow:auto}
+    label{display:block;font-size:13px;color:#d3dcf4;margin-bottom:6px;font-weight:600}
+    input,select,textarea{width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
+    textarea{min-height:130px;resize:vertical}
+    button{cursor:pointer;border:none;border-radius:10px;padding:12px 16px;font-weight:700;background:var(--accent);color:#10150d}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .ok{background:rgba(103,247,186,.15);color:var(--good)}
+    .warn{background:rgba(255,115,102,.16);color:#ffaaa2}
+    .muted{font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>NEXUS · ETH Intelligence</h1>
+    <p>Layout revisado para <strong>melhor leitura</strong>, contraste e foco em operação da IA com backend local.</p>
+
+    <section class="grid g2" style="margin-top:16px">
+      <article class="card">
+        <h2>1) Informações que você precisa para integrar a API</h2>
+        <ul>
+          <li><strong>Credenciais da corretora:</strong> API Key, API Secret e ambiente (sandbox/produção).</li>
+          <li><strong>Endpoints:</strong> preço ao vivo, saldo, envio de ordem, histórico de ordens.</li>
+          <li><strong>Regras de risco:</strong> risco por trade, drawdown diário, stop/take.</li>
+          <li><strong>Dados de mercado:</strong> par (ETH/USDT), timeframe (M1), indicadores exigidos.</li>
+          <li><strong>Segurança local:</strong> não compartilhe credenciais e use apenas ambiente de teste.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>2) Fluxo com backend local</h2>
+        <p class="muted">Fluxo recomendado:</p>
+        <div class="mono">Tela NEXUS → Backend local (/signal) → resposta da IA → decisão manual do operador</div>
+        <p class="muted">A IA sugere sinal e níveis via backend. A execução da ordem segue manual.</p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>3) Prompt-base melhorado para sua IA</h2>
+      <div class="mono">Você é um analista quantitativo de ETH/USDT no timeframe M1.
+Use EMA(9,21,50,200), RSI(14), MACD(12,26,9), VWAP e Bollinger.
+Responda em JSON válido:
+{
+  "signal": "LONG|SHORT|NEUTRAL",
+  "confidence": 0-100,
+  "entry": number,
+  "stop_loss": number,
+  "take_profit_1": number,
+  "take_profit_2": number,
+  "risk_reward": number,
+  "reasons": ["..."],
+  "invalid_if": ["..."]
+}
+Nunca invente preço. Se confiança < 70, retorne NEUTRAL.</div>
+    </section>
+
+    <section class="grid g2" style="margin-top:16px">
+      <article class="card">
+        <h2>4) Configuração do backend + IA</h2>
+        <label>Ativo</label>
+        <input value="ETH/USDT" />
+
+        <label style="margin-top:10px">Timeframe</label>
+        <select><option>M1</option><option>M5</option><option>M15</option></select>
+
+        <label style="margin-top:10px">Confiança mínima</label>
+        <input value="70" />
+
+        <button style="margin-top:12px" onclick="checkBackend()">Testar backend</button>
+        <button style="margin-top:12px" onclick="gerarSinal()">Gerar sinal</button>
+        <p id="localStatus" class="muted"></p>
+        <div class="mono" id="signalOutput" style="margin-top:10px">Sem sinal ainda.</div>
+      </article>
+
+      <article class="card">
+        <h2>5) Checklist de visibilidade (já aplicado)</h2>
+        <p><span class="pill ok">OK</span> Fonte alterada para Inter + JetBrains Mono.</p>
+        <p><span class="pill ok">OK</span> Contraste do texto e cards aumentado.</p>
+        <p><span class="pill ok">OK</span> Campos com bordas e foco mais visíveis.</p>
+        <p><span class="pill warn">Atenção</span> Mantenha credenciais reais apenas no backend.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    async function checkBackend(){
+      const out=document.getElementById('localStatus');
+      try {
+        const r = await fetch('http://localhost:3000/health');
+        const data = await r.json();
+        out.textContent = data.ok ? '✅ Backend online em localhost:3000' : '⚠️ Backend respondeu sem OK';
+      } catch (e) {
+        out.textContent = '❌ Backend offline. Rode: npm start';
+      }
+    }
+
+    async function gerarSinal(){
+      const output=document.getElementById('signalOutput');
+      const out=document.getElementById('localStatus');
+      const payload={
+        asset:'ETH/USDT',
+        timeframe:'M1',
+        min_confidence:70,
+        price:3241.8
+      };
+      try{
+        const r=await fetch('http://localhost:3000/signal',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        });
+        const data=await r.json();
+        output.textContent=JSON.stringify(data,null,2);
+        out.textContent='✅ Sinal gerado com sucesso.';
+      }catch(e){
+        out.textContent='❌ Erro ao gerar sinal. Confirme se o backend está rodando.';
+      }
+    }
+  </script>
+</body>
+</html>
